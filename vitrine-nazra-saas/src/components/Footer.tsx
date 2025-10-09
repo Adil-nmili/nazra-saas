@@ -3,7 +3,7 @@ import Logo from "./Logo";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#1b4332] text-[#d8f3dc] py-16 px-6 md:px-20 mt-8 relative w-full">
+    <footer className="from-[#1b4332] via-[#2d6a4f] to-[#081c15] text-white py-16 px-6 md:px-20 mt-8 relative w-full bg-gradient-to-br">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
         <div>
           
@@ -33,7 +33,6 @@ const Footer: React.FC = () => {
           </ul>
         </div>
 
-        {/* Newsletter */}
         <div>
           <h3 className="text-lg font-semibold mb-4 text-white">Newsletter</h3>
           <p className="text-[#b7e4c7]/80 mb-4">Get the latest updates and news from Nazra.</p>
@@ -54,9 +53,18 @@ const Footer: React.FC = () => {
       </div>
 
       <div className="mt-10 flex justify-center space-x-6">
-        <span className="w-10 h-10 rounded-full bg-[#081C15] flex items-center justify-center cursor-pointer hover:bg-[#40916c] transition">F</span>
-        <span className="w-10 h-10 rounded-full bg-[#081C15] flex items-center justify-center cursor-pointer hover:bg-[#40916c] transition">T</span>
-        <span className="w-10 h-10 rounded-full bg-[#081C15] flex items-center justify-center cursor-pointer hover:bg-[#40916c] transition">L</span>
+        <a >
+          <img src="https://img.icons8.com/?size=100&id=118497&format=png&color=000000" alt="facebook"  className="w-8 h-8"/>
+        </a>
+        <a >
+              <img src="https://img.icons8.com/?size=100&id=Xy10Jcu1L2Su&format=png&color=000000" alt="facebook"  className="w-8 h-8"/>
+        </a>
+        <a >
+              <img src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" alt="facebook"  className="w-8 h-8"/>
+        </a>
+            <a >
+          <img src="https://img.icons8.com/?size=100&id=phOKFKYpe00C&format=png&color=000000" alt="facebook"  className="w-8 h-8"/>
+        </a>
       </div>
 
       <div className="mt-10 text-center text-[#b7e4c7]/70 text-sm">

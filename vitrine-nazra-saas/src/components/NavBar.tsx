@@ -12,11 +12,15 @@ const Navbar: React.FC = () => {
     { name: 'How it works', path: '/#how-it-works' },
     { name: 'Testimonials', path: '/#testimonials' },
     { name: 'Pricing', path: '/#pricing' },
-    { name: 'FAQ', path: '/#faq' }
+    { name: 'FAQ', path: '/#faq' },
+    {name:'blog',path:"/blog"}
   ];
 
   return (
-    <nav className="sticky top-2 z-50 bg-[#1B4332] shadow shadow-[#74C69D] text-white w-[90%] mx-auto rounded-lg">
+    <header className='sticky top-0 z-50'>
+      <div className='h-2 bg-white/0 backdrop-blur-2xl w-[90%] mx-auto '>
+      </div>
+    <nav className=" from-[#1b4332] via-[#2d6a4f] to-[#081c15] bg-gradient-to-br shadow  text-white w-[90%] mx-auto rounded-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
@@ -29,7 +33,8 @@ const Navbar: React.FC = () => {
                 <a
                   key={link.path}
                   href={link.path}
-                  className={`px-3 py-2 rounded-md text-sm font-medium hover:bg-[#1B4332] ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2D6A4F] 
+                    ${
                     location.pathname === link.path
                       ? 'text-sea_green'
                       : 'text-nyanza hover:text-sea_green'
@@ -90,6 +95,8 @@ const Navbar: React.FC = () => {
         </div>
       )}
     </nav>
+
+    </header>
   );
 };
 

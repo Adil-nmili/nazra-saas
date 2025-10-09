@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "title": "Top 10 Summer Fashion Trends 2025",
+    "author": "Nazra Team",
+    "date": "2025-10-09",
+    "image": "https://images.unsplash.com/photo-1521335629791-ce4aec67dd48",
+    "excerpt": "Stay ahead this summer with the hottest fashion trends that everyone is talking about!",
+    "category": "Fashion"
+  },
+  {
+    "id": 2,
+    "title": "Must-Have Accessories for Your Style",
+    "author": "Nazra Team",
+    "date": "2025-10-08",
+    "image": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb",
+    "excerpt": "Upgrade your wardrobe with these essential accessories for every occasion.",
+    "category": "Accessories"
+  },
+  {
+    "id": 3,
+    "title": "How to Shop Smart Online",
+    "author": "Nazra Team",
+    "date": "2025-10-07",
+    "image": "https://images.unsplash.com/photo-1581092334423-0d4f0a8285f1",
+    "excerpt": "Learn smart tips to make your online shopping experience smooth and safe.",
+    "category": "Shopping Tips"
+  },
+  {
+    "id": 4,
+    "title": "Eco-Friendly Fashion Choices",
+    "author": "Nazra Team",
+    "date": "2025-10-06",
+    "image": "https://images.unsplash.com/photo-1520975921153-7d6ce1d6a759",
+    "excerpt": "Discover sustainable fashion brands and how you can make eco-conscious choices.",
+    "category": "Sustainability"
+  },
+    {
+    "id": 1,
+    "title": "Top 10 Summer Fashion Trends 2025",
+    "author": "Nazra Team",
+    "date": "2025-10-09",
+    "image": "https://images.unsplash.com/photo-1521335629791-ce4aec67dd48",
+    "excerpt": "Stay ahead this summer with the hottest fashion trends that everyone is talking about!",
+    "category": "Fashion"
+  },
+  {
+    "id": 2,
+    "title": "Must-Have Accessories for Your Style",
+    "author": "Nazra Team",
+    "date": "2025-10-08",
+    "image": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb",
+    "excerpt": "Upgrade your wardrobe with these essential accessories for every occasion.",
+    "category": "Accessories"
+  },
+  {
+    "id": 3,
+    "title": "How to Shop Smart Online",
+    "author": "Nazra Team",
+    "date": "2025-10-07",
+    "image": "https://images.unsplash.com/photo-1581092334423-0d4f0a8285f1",
+    "excerpt": "Learn smart tips to make your online shopping experience smooth and safe.",
+    "category": "Shopping Tips"
+  },
+  {
+    "id": 4,
+    "title": "Eco-Friendly Fashion Choices",
+    "author": "Nazra Team",
+    "date": "2025-10-06",
+    "image": "https://images.unsplash.com/photo-1520975921153-7d6ce1d6a759",
+    "excerpt": "Discover sustainable fashion brands and how you can make eco-conscious choices.",
+    "category": "Sustainability"
+  }
+]
