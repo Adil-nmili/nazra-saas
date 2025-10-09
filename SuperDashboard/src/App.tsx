@@ -1,10 +1,14 @@
+import { RouterProvider } from "react-router-dom"
+import Router from './Router'
+import { ThemeProvider } from "./components/theme-provider"
 
-import { Button } from '@/components/ui/button'
 
 
 const App = () => {
   return (
-    <Button variant='outline'>Hellow</Button>
+    <ThemeProvider defaultTheme="dark" storageKey="Dashboard-theme">
+    <RouterProvider  router={Router}/>
+    </ThemeProvider>
   )
 }
 
