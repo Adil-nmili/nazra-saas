@@ -12,7 +12,7 @@ export default function ClientsStateCard({clients} : {
     }
 } ){
     return (
-        <Card className="gap-2 py-2">
+        <Card className="gap-2 py-6 mb-10">
             <CardHeader className="flex justify-between items-center">
                 <h6 className="capitalize text-gray-700 dark:text-gray-500">{clients.title}</h6>
                 {clients?.icon && <clients.icon className="text-gray-700 dark:text-gray-500" size={18} />}

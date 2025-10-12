@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "status": "active",
+    "plan": "premium",
+    "amount": 100
+  },
+  {
+    "id": 11,
+    "name": "Adil Doe",
+    "email": "john.doe@gmail.com",
+    "status": "active",
+    "plan": "premium",
+    "amount": 1000
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "status": "inactive",
+    "plan": "free",
+    "amount": 0
+  },
+  {
+    "id": 3,
+    "name": "Peter Jones",
+    "email": "peter.jones@example.com",
+    "status": "pending",
+    "plan": "basic",
+    "amount": 50
+  },
+  {
+    "id": 4,
+    "name": "Mary Miller",
+    "email": "mary.miller@example.com",
+    "status": "active",
+    "plan": "premium",
+    "amount": 100
+  },
+  {
+    "id": 5,
+    "name": "David Williams",
+    "email": "david.williams@example.com",
+    "status": "active",
+    "plan": "basic",
+    "amount": 50
+  },
+  {
+    "id": 6,
+    "name": "Linda Brown",
+    "email": "linda.brown@example.com",
+    "status": "inactive",
+    "plan": "free",
+    "amount": 0
+  },
+  {
+    "id": 7,
+    "name": "James Wilson",
+    "email": "james.wilson@example.com",
+    "status": "pending",
+    "plan": "premium",
+    "amount": 100
+  },
+  {
+    "id": 8,
+    "name": "Patricia Taylor",
+    "email": "patricia.taylor@example.com",
+    "status": "active",
+    "plan": "basic",
+    "amount": 50
+  },
+  {
+    "id": 9,
+    "name": "Robert Anderson",
+    "email": "robert.anderson@example.com",
+    "status": "inactive",
+    "plan": "free",
+    "amount": 0
+  },
+  {
+    "id": 10,
+    "name": "Jennifer Thomas",
+    "email": "jennifer.thomas@example.com",
+    "status": "pending",
+    "plan": "premium",
+    "amount": 100
+  }
+]
