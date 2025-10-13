@@ -3,7 +3,7 @@ import blogsData from "../constants/blogs.json";
 import Logo from "../components/Logo";
 import { FiThumbsUp,FiThumbsDown, FiMessageCircle ,FiShare} from "react-icons/fi"
 import Modal from "../components/Modal";
-import SignIn from "../components/GetStarted/SignIn";
+import SignIn from "../components/GetStarted/Sign";
 interface BlogInt {
   id: number;
   title: string;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, Rocket, Store, CreditCard, Settings } from "lucide-react";
 import Modal from "../components/Modal";
-import SignIn from "../components/GetStarted/SignIn";
+import SignIn from "../components/GetStarted/Sign";
 
 const steps = [
   {

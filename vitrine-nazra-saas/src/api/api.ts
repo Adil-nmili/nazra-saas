@@ -31,8 +31,8 @@ export const signIn = async (user:object)=>{
     return api.post(`/api/sign-in`,user);
 }
 
-export const logIn = async (user:object)=>{
-    return api.post(`/api/log-in`,user);
+export const signUp = async (user:object)=>{
+    return api.post(`/api/sign-up`,user);
 }
 
 export const getBlogs = async ()=>{

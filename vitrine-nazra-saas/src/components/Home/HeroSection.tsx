@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiUsers } from 'react-icons/fi';
-
+import {Link} from 'react-router-dom'
 const activeUsers = [
   { id: 1, name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?img=1' },
   { id: 2, name: 'Sarah Williams', avatar: 'https://i.pravatar.cc/150?img=2' },
@@ -36,9 +36,22 @@ function HeroSection() {
               From automation to analytics, Nazra delivers cutting-edge SaaS tools that help you streamline operations and scale faster.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="px-6 py-3 bg-[#1B4332] text-nyanza rounded-lg font-medium hover:bg-opacity-90 transition-colors shadow-md hover:shadow-lg text-white cursor-pointer hover:bg-[#081C15]">
-                Get Started
-              </button>
+              {/* <Link 
+                to={'/get-started'}
+                className="px-6 py-3 bg-[#1B4332] text-nyanza rounded-lg font-medium hover:bg-opacity-90 transition-colors shadow-md hover:shadow-lg text-white cursor-pointer hover:bg-[#081C15]">
+                  Get Started
+              </Link> */}
+              <Link
+                to="/get-started"
+                className="relative px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg overflow-hidden cursor-pointer border border-white"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-[#081c15a8] via-[#081C15] to-[#081c15a8] animate-gradient-move"></span>
+
+                <span className="relative z-10 text-white">Get Started</span>
+              </Link>
+
+
+
               <button className="px-6 py-3 border-2 border-[#1B4332] text-[#1B4332] bg-transparent rounded-lg font-medium hover:bg-[#1B4332]/10 transition-colors cursor-pointer">
                 Learn More
               </button> 
