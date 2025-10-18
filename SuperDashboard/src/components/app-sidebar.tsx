@@ -3,16 +3,29 @@
 import * as React from "react"
 import {
   AudioWaveform,
+  BadgeInfo,
+  Blocks,
   BookOpen,
   Bot,
+  ChartLine,
   Command,
+  DollarSign,
+  FolderCog,
   Frame,
   GalleryVerticalEnd,
+  HandFist,
+  HeartPulse,
+  Kanban,
+  LayoutDashboard,
   Map,
+  MonitorCog,
   PartyPopper,
   PieChart,
+  Rss,
+  Send,
   Settings2,
   SquareTerminal,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -26,12 +39,12 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { COMPTES, CUSTOMERSSEGMENTATIONS, DASHBOARDCLIENTS, GENERALSETTING, HISTORY, KPIS, PAYMENTPROCESSING, PRICINGPERTEIRS, QUICKACTIONS, REVENUECHART, SUBSCRIPTIONS, SYSTEMEHEALTH, USERMANAGEMENT } from "@/constant/routeConstants"
+
 
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
@@ -51,120 +64,360 @@ const data = {
       plan: "Free",
     },
   ],
+
+
   navMain: [
     {
-      title: "Main",
-      url:"#",
-      icon:PartyPopper,
-      isActive:true,
+      title: "Dashboard",
+      url: "#",
+      icon: LayoutDashboard,
+      isActive: true,
       items: [
         {
-          title:"Clients",
-          url:"/"
+          title: "User growth analytics",
+          url: '/dashboard',
+        },
+        
+       
+        {
+          title: "Key metrics and KPIs",
+          url: KPIS
         },
         {
-          title:"Comptes",
-          url:"/comptes"
-        }
+          title: "Revenue charts",
+          url: REVENUECHART
+        },
+        {
+          title: "System health status",
+          url: SYSTEMEHEALTH
+        },
+        {
+          title: "Quick actions panel",
+          url: QUICKACTIONS
+        },
       ]
     },
     {
-      title: "Playground",
+      title: "User & Customers",
       url: "#",
-      icon: SquareTerminal,
+      icon: Users,
       isActive: false,
       items: [
         {
+          title: "Customers list",
+          url: DASHBOARDCLIENTS
+        },
+         {
+          title: "Customers profiles",
+          url: COMPTES
+        },
+         {
+          title: "User management",
+          url: USERMANAGEMENT
+        },
+         {
+          title: "Customers segmentation",
+          url: CUSTOMERSSEGMENTATIONS
+        },
+         {
+          title: "Activity logs per user",
+          url: "#"
+        },
+        {
           title: "History",
+          url: HISTORY,
+        },
+      ],
+    },
+    {
+      title: "Plan & Subscriptions",
+      url: "#",
+      icon: Kanban,
+      items: [
+        {
+          title: "Subscription plan management",
+          url: SUBSCRIPTIONS,
+        },
+        {
+          title: "Pricing tiers",
+          url: PRICINGPERTEIRS,
+        },
+        {
+          title: "Feature management per plan",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Plan analytics",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Upgrade/downgrade paths",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Billing & Payments",
       url: "#",
-      icon: Bot,
+      icon: DollarSign,
       items: [
         {
-          title: "Genesis",
+          title: "Payment processing",
+          url: PAYMENTPROCESSING
+        },
+        {
+          title: "Invoice management",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "Revenue analytics",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Failed payment handling",
+          url: "#",
+        },
+        {
+          title: "Tax configuration",
+          url: "#",
+        },
+        {
+          title: "Refund management",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Analytics & Reports",
       url: "#",
-      icon: BookOpen,
+      icon: ChartLine,
       items: [
         {
-          title: "Introduction",
+          title: "Business intelligence dashboard",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Custom reports",
           url: "#",
         },
         {
-          title: "Tutorials",
+          title: "Export functionality",
           url: "#",
         },
         {
-          title: "Changelog",
+          title: "Real-time analytics",
           url: "#",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "System & Operations",
       url: "#",
-      icon: Settings2,
+      icon: MonitorCog,
       items: [
         {
-          title: "General",
+          title: "General settings",
+          url: GENERALSETTING,
+        },
+        {
+          title: "Company information",
           url: "#",
         },
         {
-          title: "Team",
+          title: "Brand customization",
           url: "#",
         },
         {
-          title: "Billing",
+          title: "Email templates",
           url: "#",
         },
         {
-          title: "Limits",
+          title: "Notification settings",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Security & Access",
+      url: "#",
+      icon: BadgeInfo,
+      items: [
+        {
+          title: "User roles & permissions",
+          url: "#",
+        },
+        {
+          title: "API key management",
+          url: "#",
+        },
+        {
+          title: "Audit logs",
+          url: "#",
+        },
+        {
+          title: "Security settings",
+          url: "#",
+        },
+        {
+          title: "Two-factor authentication",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Integrations",
+      url: "#",
+      icon: Blocks,
+      items: [
+        {
+          title: "Third-party app connections",
+          url: "#",
+        },
+        {
+          title: "API documentation",
+          url: "#",
+        },
+        {
+          title: "Webhook management",
+          url: "#",
+        },
+        {
+          title: "Make.com integrations",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "System Health",
+      url: "#",
+      icon: HeartPulse,
+      items: [
+        {
+          title: "Server status monitoring",
+          url: "#",
+        },
+        {
+          title: "Performance metrics",
+          url: "#",
+        },
+        {
+          title: "Error logs",
+          url: "#",
+        },
+        {
+          title: "Uptime monitoring",
+          url: "#",
+        },
+        {
+          title: "Database health",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Content Management",
+      url: "#",
+      icon: Rss,
+      items: [
+        {
+          title: "Blog/articles management",
+          url: "#",
+        },
+        {
+          title: "Documentation",
+          url: "#",
+        },
+        {
+          title: "Knowledge base",
+          url: "#",
+        },
+        {
+          title: "FAQ management",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Email & Communications",
+      url: "#",
+      icon: Send,
+      items: [
+        {
+          title: "Email campaigns",
+          url: "#",
+        },
+        {
+          title: "Newsletter management",
+          url: "#",
+        },
+        {
+          title: "Automated sequences",
+          url: "#",
+        },
+        {
+          title: "Template builder",
+          url: "#",
+        },
+        {
+          title: "Delivery analytics",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Support & Help Desk",
+      url: "#",
+      icon: HandFist,
+      items: [
+        {
+          title: "Ticket management",
+          url: "#",
+        },
+        {
+          title: "Customer support inbox",
+          url: "#",
+        },
+        {
+          title: "Support agent performance",
+          url: "#",
+        },
+        {
+          title: "Resolution analytics",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "File & Media Management",
+      url: "#",
+      icon: FolderCog,
+      items: [
+        {
+          title: "File uploads management",
+          url: "#",
+        },
+        {
+          title: "Media library",
+          url: "#",
+        },
+        {
+          title: "Storage analytics",
+          url: "#",
+        },
+        {
+          title: "File access controls",
+          url: "#",
+        },
+        {
+          title: "Database health",
           url: "#",
         },
       ],
     },
   ],
   projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "/sales",
-      icon: PieChart,
-    },
+    
+
     {
       name: "Travel",
       url: "#",
@@ -177,9 +430,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props} >
       <SidebarHeader>
-        <TeamSwitcher  />
+        <TeamSwitcher />
       </SidebarHeader>
-      <SidebarContent style={{scrollbarWidth: "none"}}>
+      <SidebarContent style={{ scrollbarWidth: "none" }}>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>

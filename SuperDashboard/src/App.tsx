@@ -6,7 +6,7 @@ import { ThemeProvider } from "./components/theme-provider"
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="Dashboard-theme">
+    <ThemeProvider defaultTheme="system" storageKey="Dashboard-theme">
     <RouterProvider  router={Router}/>
     </ThemeProvider>
   )

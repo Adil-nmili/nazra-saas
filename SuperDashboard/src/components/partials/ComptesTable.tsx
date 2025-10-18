@@ -39,6 +39,9 @@ import {
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { Link } from "react-router-dom";
+import { CUSTOMERDETAILS } from "@/Router";
+import { CUSTOMERSPROFILES } from "@/constant/routeConstants";
 
 export type Compte = {
   id: number;
@@ -165,7 +168,9 @@ export function ComptesTable() {
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to={CUSTOMERSPROFILES}>View customer</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>View payment details</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,28 +1,47 @@
 import { Moon, Sun } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
-
 import { useTheme } from "@/components/theme-provider"
 import { useEffect, useState } from "react"
 
 export function ModeToggle() {
-  const { setTheme } = useTheme()
-  const [active,setActive] = useState(true);
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  useEffect(() : void => {
-   if(active == true) {
-    setTheme('dark')
-   } else {
-     setTheme('light')
-   }
-  }, [active, setTheme])
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem('Dashboard-theme')
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+    setMounted(true)
+  }, [setTheme])
 
+  useEffect(() => {
+    if (mounted) {
+      window.localStorage.setItem('Dashboard-theme', theme)
+    }
+  }, [theme, mounted])
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <Button variant="outline" size="icon" disabled>
+        <Sun className="h-[1.2rem] w-[1.2rem]" />
+      </Button>
+    )
+  }
 
   return (
-    <Button variant={'outline'} size={'icon'}  onClick={() => setActive(!active)}>
-      {
-        active ? (<Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"  />) : (<Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />)
-      }
+    <Button variant="outline" size="icon" onClick={toggleTheme}>
+      {theme === "light" ? (
+        <Moon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      ) : (
+        <Sun className="h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      )}
+      <span className="sr-only">Toggle theme</span>
     </Button>
   )
 }

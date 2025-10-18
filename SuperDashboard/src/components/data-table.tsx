@@ -402,15 +402,15 @@ export function DataTable({
   return (
     <Tabs
       defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
+      className="w-full flex-col justify-start gap-6 "
     >
-      <div className="flex items-center justify-between px-4 lg:px-6">
+      <div className="flex items-center justify-between">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select defaultValue="outline">
+        <Select defaultValue="outline" >
           <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
+            className="flex w-fit @4xl/main:hidden bg-white dark:bg-slate-800"
             size="sm"
             id="view-selector"
           >
@@ -475,7 +475,7 @@ export function DataTable({
       </div>
       <TabsContent
         value="outline"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+        className="relative flex flex-col gap-4 overflow-auto "
       >
         <div className="overflow-hidden rounded-lg border">
           <DndContext
@@ -485,8 +485,8 @@ export function DataTable({
             sensors={sensors}
             id={sortableId}
           >
-            <Table>
-              <TableHeader className="bg-muted sticky top-0 z-10">
+            <Table className="bg-white dark:bg-slate-800">
+              <TableHeader className="bg-muted dark:bg-slate-900 sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
