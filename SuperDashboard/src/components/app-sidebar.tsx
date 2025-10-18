@@ -39,7 +39,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { COMPTES, CUSTOMERSSEGMENTATIONS, DASHBOARDCLIENTS, GENERALSETTING, HISTORY, KPIS, PAYMENTPROCESSING, PRICINGPERTEIRS, QUICKACTIONS, REVENUECHART, SUBSCRIPTIONS, SYSTEMEHEALTH, USERMANAGEMENT } from "@/constant/routeConstants"
+import { COMPANYINFORMATION, COMPTES, CUSTOMERSSEGMENTATIONS, DASHBOARDCLIENTS, EMAILTEMPLATES, GENERALSETTING, HISTORY, KPIS, NOTIFICATIONSETTINGS, PAYMENTPROCESSING, PRICINGPERTEIRS, QUICKACTIONS, REVENUECHART, SUBSCRIPTIONS, SYSTEMEHEALTH, USERMANAGEMENT } from "@/constant/routeConstants"
 
 
 // This is sample data.
@@ -221,7 +221,7 @@ const data = {
         },
         {
           title: "Company information",
-          url: "#",
+          url: COMPANYINFORMATION,
         },
         {
           title: "Brand customization",
@@ -229,11 +229,11 @@ const data = {
         },
         {
           title: "Email templates",
-          url: "#",
+          url: EMAILTEMPLATES ,
         },
         {
           title: "Notification settings",
-          url: "#",
+          url: NOTIFICATIONSETTINGS,
         },
       ],
     },

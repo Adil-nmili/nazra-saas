@@ -8,7 +8,7 @@ import PlansSubscriptions from './pages/PlansSubscriptions'
 import HistoryPage from './pages/HistoryPage'
 import RevenueCharts from './pages/RevenueCharts'
 
-import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING } from './constant/routeConstants'
+import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING, COMPANYINFORMATION, EMAILTEMPLATES, NOTIFICATIONSETTINGS } from './constant/routeConstants'
 import KeyMetricsDashboard from './pages/KeyMetricsDashboard'
 import LoginPage from './pages/LoginPage'
 import SystemHealthStatus from './pages/SystemHealthStatus'
@@ -20,6 +20,9 @@ import CustomerSegmentation from './pages/CustomerSegmentation'
 import PricingTiers from './pages/PricingTiers'
 import PaymentProcessing from './pages/PaymentProcessing'
 import GeneralSettings from './pages/GeneralSettings'
+import CompanyInformation from './pages/CompanyInformation'
+import EmailTemplates from './pages/EmailTemplates'
+import NotificationsSettings from './pages/NotificationsSettings'
 
 
 
@@ -95,6 +98,18 @@ const Router = createBrowserRouter([
             {
                 path:GENERALSETTING,
                 element: <GeneralSettings />
+            },
+            {
+                path:COMPANYINFORMATION,
+                element: <CompanyInformation />
+            },
+            {
+                path: EMAILTEMPLATES,
+                element: <EmailTemplates />
+            },
+            {
+                path:NOTIFICATIONSETTINGS,
+                element: <NotificationsSettings />
             }
 
         ]

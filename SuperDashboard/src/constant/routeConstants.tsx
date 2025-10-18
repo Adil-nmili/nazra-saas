@@ -16,3 +16,6 @@ export const CUSTOMERSSEGMENTATIONS = "/dashboard/customers-segmentations"
 export const PRICINGPERTEIRS = "/dashboard/pricing-tiers";
 export const PAYMENTPROCESSING = "/dashboard/payment-processing";
 export const GENERALSETTING = "/dashboard/general-settings";
+export const COMPANYINFORMATION = "/dashboard/company-informations";
+export const EMAILTEMPLATES = "/dashboard/email-templates";
+export const NOTIFICATIONSETTINGS = "/dashboard/notifications-settings";
