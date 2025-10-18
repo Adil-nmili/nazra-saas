@@ -149,7 +149,7 @@ const GeneralSettings = () => {
   const [newIp, setNewIp] = useState('')
 
   // Mock data
-  const apiKey = 'sk_live_51Mn4b2FJk8L9b4R7vQwXyZ8aBcDeFgH1Jk3L6mN9pQ0rS4tU7vWxYz'
+  const apiKey = import.meta.env.VITE_STRIPE_API_KEY
   const ipWhitelist = ['192.168.1.100', '192.168.1.101', '10.0.0.50']
 
   const companyForm = useForm<CompanyFormValues>({
