@@ -39,7 +39,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { COMPANYINFORMATION, COMPTES, CUSTOMERSSEGMENTATIONS, DASHBOARDCLIENTS, EMAILTEMPLATES, GENERALSETTING, HISTORY, KPIS, NOTIFICATIONSETTINGS, PAYMENTPROCESSING, PRICINGPERTEIRS, QUICKACTIONS, REVENUECHART, SUBSCRIPTIONS, SYSTEMEHEALTH, USERMANAGEMENT } from "@/constant/routeConstants"
+import { COMPANYINFORMATION, COMPTES, CUSTOMERSSEGMENTATIONS, DASHBOARDCLIENTS, EMAILTEMPLATES, FACTUREPAGE, GENERALSETTING, HISTORY, KPIS, NOTIFICATIONSETTINGS, PAYMENTPROCESSING, PRICINGPERTEIRS, QUICKACTIONS, REVENUECHART, SUBSCRIPTIONS, SYSTEMEHEALTH, USERMANAGEMENT } from "@/constant/routeConstants"
 
 
 // This is sample data.
@@ -370,8 +370,8 @@ const data = {
       icon: HandFist,
       items: [
         {
-          title: "Ticket management",
-          url: "#",
+          title: "Facture management",
+          url: FACTUREPAGE,
         },
         {
           title: "Customer support inbox",

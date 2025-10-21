@@ -8,7 +8,7 @@ import PlansSubscriptions from './pages/PlansSubscriptions'
 import HistoryPage from './pages/HistoryPage'
 import RevenueCharts from './pages/RevenueCharts'
 
-import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING, COMPANYINFORMATION, EMAILTEMPLATES, NOTIFICATIONSETTINGS } from './constant/routeConstants'
+import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING, COMPANYINFORMATION, EMAILTEMPLATES, NOTIFICATIONSETTINGS, FACTUREPAGE } from './constant/routeConstants'
 import KeyMetricsDashboard from './pages/KeyMetricsDashboard'
 import LoginPage from './pages/LoginPage'
 import SystemHealthStatus from './pages/SystemHealthStatus'
@@ -23,6 +23,7 @@ import GeneralSettings from './pages/GeneralSettings'
 import CompanyInformation from './pages/CompanyInformation'
 import EmailTemplates from './pages/EmailTemplates'
 import NotificationsSettings from './pages/NotificationsSettings'
+import { InvoicePage } from './pages/invoice-page'
 
 
 
@@ -110,6 +111,10 @@ const Router = createBrowserRouter([
             {
                 path:NOTIFICATIONSETTINGS,
                 element: <NotificationsSettings />
+            },
+            {
+                path: FACTUREPAGE,
+                element: <InvoicePage />
             }
 
         ]

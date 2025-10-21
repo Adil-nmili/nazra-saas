@@ -24,3 +24,4 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: admin
     ports:
       - "8081:8081"
+    

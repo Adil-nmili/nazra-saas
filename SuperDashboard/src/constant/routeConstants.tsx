@@ -19,3 +19,4 @@ export const GENERALSETTING = "/dashboard/general-settings";
 export const COMPANYINFORMATION = "/dashboard/company-informations";
 export const EMAILTEMPLATES = "/dashboard/email-templates";
 export const NOTIFICATIONSETTINGS = "/dashboard/notifications-settings";
+export const FACTUREPAGE = "/dashboard/facture-page";
