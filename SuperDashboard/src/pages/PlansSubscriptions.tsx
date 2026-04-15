@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Card, 
   CardContent, 
@@ -46,6 +46,7 @@ import {
   SelectValue 
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -60,8 +61,12 @@ import {
   Sparkles,
   Users,
   Zap,
-  Database
+  Database,
+  AlertCircle,
+  Loader2
 } from 'lucide-react'
+import { usePlans, usePlanMutations } from '@/hooks'
+import type { Plan as ApiPlan } from '@/api/types'
 
 type Plan = {
   id: string
@@ -97,81 +102,36 @@ const planFormSchema = z.object({
 
 type PlanFormValues = z.infer<typeof planFormSchema>
 
-// Mock data
-const mockPlans: Plan[] = [
-  {
-    id: '1',
-    name: 'Starter',
-    description: 'Perfect for small teams getting started',
-    price: 29,
-    billingPeriod: 'monthly',
-    currency: 'USD',
-    features: [
-      'Up to 5 users',
-      '10GB storage',
-      'Basic analytics',
-      'Email support',
-      'API access'
-    ],
-    isActive: true,
-    isPopular: false,
-    maxUsers: 5,
-    storage: '10GB',
-    support: 'email',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-03-20')
-  },
-  {
-    id: '2',
-    name: 'Professional',
-    description: 'Ideal for growing businesses',
-    price: 79,
-    billingPeriod: 'monthly',
-    currency: 'USD',
-    features: [
-      'Up to 25 users',
-      '100GB storage',
-      'Advanced analytics',
-      'Priority support',
-      'Custom integrations',
-      'SSO authentication'
-    ],
-    isActive: true,
-    isPopular: true,
-    maxUsers: 25,
-    storage: '100GB',
-    support: 'priority',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-03-20')
-  },
-  {
-    id: '3',
-    name: 'Enterprise',
-    description: 'For large organizations with complex needs',
-    price: 199,
-    billingPeriod: 'monthly',
-    currency: 'USD',
-    features: [
-      'Unlimited users',
-      '1TB storage',
-      'Advanced analytics & reporting',
-      '24/7 phone support',
-      'Custom development',
-      'Dedicated account manager',
-      'SLA guarantee'
-    ],
-    isActive: true,
-    isPopular: false,
-    maxUsers: 9999,
-    storage: '1TB',
-    support: '24/7',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-03-20')
-  }
-]
+// Helper to map API Plan to local Plan type
+const mapApiPlanToLocal = (apiPlan: ApiPlan): Plan => ({
+  id: apiPlan._id,
+  name: apiPlan.name,
+  description: apiPlan.description || '',
+  price: apiPlan.price,
+  billingPeriod: apiPlan.billingCycle === 'yearly' || apiPlan.billingCycle === 'monthly' 
+    ? apiPlan.billingCycle 
+    : 'monthly',
+  currency: apiPlan.currency,
+  features: apiPlan.features,
+  isActive: apiPlan.isActive,
+  isPopular: apiPlan.tier === 'professional',
+  maxUsers: apiPlan.maxUsers,
+  storage: `${apiPlan.maxStorage}GB`,
+  support: apiPlan.tier === 'enterprise' ? '24/7' : apiPlan.tier === 'professional' ? 'priority' : 'email',
+  createdAt: new Date(apiPlan.createdAt),
+  updatedAt: new Date(apiPlan.updatedAt)
+})
 
 const PlansSubscriptions = () => {
-  const [plans, setPlans] = useState<Plan[]>(mockPlans)
+  // API hooks
+  const { plans: apiPlans, loading, error, refetch } = usePlans()
+  const { createPlan, updatePlan, deletePlan, loading: mutationLoading } = usePlanMutations()
+  
+  // Map API plans to local Plan type
+  const plans: Plan[] = React.useMemo(() => {
+    return apiPlans.map(mapApiPlanToLocal)
+  }, [apiPlans])
+  
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -195,39 +155,63 @@ const PlansSubscriptions = () => {
     }
   })
 
-  const handleCreatePlan = (data: PlanFormValues) => {
-    const newPlan: Plan = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-    setPlans(prev => [...prev, newPlan])
-    setIsCreateDialogOpen(false)
-    form.reset()
+  // Helper to parse storage string to number
+  const parseStorageToNumber = (storage: string): number => {
+    const match = storage.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 10;
   }
 
-  const handleEditPlan = (data: PlanFormValues) => {
-    if (!selectedPlan) return
-    
-    const updatedPlan: Plan = {
-      ...selectedPlan,
-      ...data,
-      updatedAt: new Date()
+  // Helper to map form data to API format
+  const mapFormToApi = (data: PlanFormValues) => ({
+    name: data.name,
+    description: data.description,
+    price: data.price,
+    currency: data.currency,
+    billingCycle: data.billingPeriod as 'monthly' | 'yearly' | 'one-time',
+    features: data.features,
+    maxUsers: data.maxUsers,
+    maxStorage: parseStorageToNumber(data.storage),
+    isActive: data.isActive,
+    tier: data.price >= 150 ? 'enterprise' as const : 
+          data.price >= 50 ? 'professional' as const : 
+          data.price > 0 ? 'basic' as const : 'free' as const
+  })
+
+  const handleCreatePlan = async (data: PlanFormValues) => {
+    try {
+      await createPlan(mapFormToApi(data))
+      refetch()
+      setIsCreateDialogOpen(false)
+      form.reset()
+    } catch (err) {
+      console.error('Failed to create plan:', err)
     }
-    
-    setPlans(prev => prev.map(plan => 
-      plan.id === selectedPlan.id ? updatedPlan : plan
-    ))
-    setIsEditDialogOpen(false)
-    setSelectedPlan(null)
   }
 
-  const handleDeletePlan = () => {
+  const handleEditPlan = async (data: PlanFormValues) => {
     if (!selectedPlan) return
-    setPlans(prev => prev.filter(plan => plan.id !== selectedPlan.id))
-    setIsDeleteDialogOpen(false)
-    setSelectedPlan(null)
+    
+    try {
+      await updatePlan(selectedPlan.id, mapFormToApi(data))
+      refetch()
+      setIsEditDialogOpen(false)
+      setSelectedPlan(null)
+    } catch (err) {
+      console.error('Failed to update plan:', err)
+    }
+  }
+
+  const handleDeletePlan = async () => {
+    if (!selectedPlan) return
+    
+    try {
+      await deletePlan(selectedPlan.id)
+      refetch()
+      setIsDeleteDialogOpen(false)
+      setSelectedPlan(null)
+    } catch (err) {
+      console.error('Failed to delete plan:', err)
+    }
   }
 
   const openEditDialog = (plan: Plan) => {
@@ -292,6 +276,51 @@ const PlansSubscriptions = () => {
     }
   }
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-12 w-24" />
+                <div className="space-y-2 mt-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Skeleton key={j} className="h-4 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-muted-foreground">Failed to load plans</p>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -302,8 +331,8 @@ const PlansSubscriptions = () => {
             Manage your subscription plans and pricing
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => setIsCreateDialogOpen(true)} disabled={mutationLoading}>
+          {mutationLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
           Create New Plan
         </Button>
       </div>

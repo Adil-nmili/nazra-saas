@@ -8,7 +8,7 @@ import PlansSubscriptions from './pages/PlansSubscriptions'
 import HistoryPage from './pages/HistoryPage'
 import RevenueCharts from './pages/RevenueCharts'
 
-import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING, COMPANYINFORMATION, EMAILTEMPLATES, NOTIFICATIONSETTINGS, FACTUREPAGE } from './constant/routeConstants'
+import { MAINDASHBOARD, DASHBOARDCLIENTS, COMPTES, COMPTESBYID, SUBSCRIPTIONS, HISTORY, REVENUECHART, KPIS, LOGIN, SYSTEMEHEALTH, QUICKACTIONS, CUSTOMERSPROFILES, USERMANAGEMENT, CUSTOMERSSEGMENTATIONS, PRICINGPERTEIRS, PAYMENTPROCESSING, GENERALSETTING, COMPANYINFORMATION, EMAILTEMPLATES, NOTIFICATIONSETTINGS, FACTUREPAGE, CLIENTDETAILS } from './constant/routeConstants'
 import KeyMetricsDashboard from './pages/KeyMetricsDashboard'
 import LoginPage from './pages/LoginPage'
 import SystemHealthStatus from './pages/SystemHealthStatus'
@@ -24,18 +24,21 @@ import CompanyInformation from './pages/CompanyInformation'
 import EmailTemplates from './pages/EmailTemplates'
 import NotificationsSettings from './pages/NotificationsSettings'
 import { InvoicePage } from './pages/invoice-page'
+import ClientDetailsPage from './pages/ClientDetailsPage'
+import ProtectedRoute, { GuestRoute } from './components/ProtectedRoute'
+import RegisterPage from './pages/RegisterPage'
 
 
 
 const Router = createBrowserRouter([
     {
         path: LOGIN,
-        element: <LoginPage />
+        element: <GuestRoute><LoginPage /></GuestRoute>
     },
     {
 
 
-        element: <Layout />,
+        element: <ProtectedRoute><Layout /></ProtectedRoute>,
         children: [
             {
                 path: DASHBOARDCLIENTS,
@@ -54,7 +57,7 @@ const Router = createBrowserRouter([
                 element: <Comptes />
             },
             {
-                path:COMPTESBYID ,
+                path: COMPTESBYID,
                 element: <CustomerDetails />
             },
             {
@@ -67,7 +70,7 @@ const Router = createBrowserRouter([
             },
             {
                 path: SUBSCRIPTIONS,
-                element : <PlansSubscriptions />
+                element: <PlansSubscriptions />
             },
             {
                 path: HISTORY,
@@ -76,7 +79,7 @@ const Router = createBrowserRouter([
             {
                 path: REVENUECHART,
                 element: <RevenueCharts />
-            },{
+            }, {
                 path: PRICINGPERTEIRS,
                 element: <PricingTiers />
             },
@@ -85,8 +88,8 @@ const Router = createBrowserRouter([
                 element: <PaymentProcessing />
             },
             {
-                path:KPIS,
-                element:< KeyMetricsDashboard/>
+                path: KPIS,
+                element: < KeyMetricsDashboard />
             },
             {
                 path: SYSTEMEHEALTH,
@@ -97,11 +100,11 @@ const Router = createBrowserRouter([
                 element: <QuickActionsPanel />
             },
             {
-                path:GENERALSETTING,
+                path: GENERALSETTING,
                 element: <GeneralSettings />
             },
             {
-                path:COMPANYINFORMATION,
+                path: COMPANYINFORMATION,
                 element: <CompanyInformation />
             },
             {
@@ -109,12 +112,16 @@ const Router = createBrowserRouter([
                 element: <EmailTemplates />
             },
             {
-                path:NOTIFICATIONSETTINGS,
+                path: NOTIFICATIONSETTINGS,
                 element: <NotificationsSettings />
             },
             {
                 path: FACTUREPAGE,
                 element: <InvoicePage />
+            },
+            {
+                path: CLIENTDETAILS,
+                element: <ClientDetailsPage />
             }
 
         ]
@@ -122,11 +129,11 @@ const Router = createBrowserRouter([
     },
     {
         path: '/login',
-        lazy: () => import('./pages/LoginPage').then(module => ({ Component: module.default })),
+        element: <GuestRoute><LoginPage /></GuestRoute>
     },
     {
         path: '/register',
-        lazy: () => import('./pages/RegisterPage').then(module => ({ Component: module.default })),
+        element: <GuestRoute><RegisterPage /></GuestRoute>
     }
 ])
 export default Router

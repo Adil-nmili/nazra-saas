@@ -11,7 +11,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import comptes from "@/app/dashboard/comptes-data.json";
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -36,26 +35,46 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 import { Link } from "react-router-dom";
-import { CUSTOMERDETAILS } from "@/Router";
 import { CUSTOMERSPROFILES } from "@/constant/routeConstants";
+import { useComptes, useCompteMutations, useCompteStats } from "@/hooks";
+import type { Compte as ApiCompte } from "@/api/types";
 
-export type Compte = {
-  id: number;
+// Mapped type for table display
+type CompteDisplay = {
+  id: string;
+  accountNumber: string;
   name: string;
-  email: string;
-  status: "active" | "inactive" | "pending";
-  plan: "free" | "basic" | "premium";
-  amount: number;
+  type: string;
+  balance: number;
+  currency: string;
+  status: "active" | "inactive" | "frozen" | "closed";
 };
 
 export function ComptesTable() {
-  const [data, setData] = React.useState<Compte[]>(comptes);
+  // API hooks
+  const { comptes, loading, error, refetch } = useComptes();
+  const { stats, loading: statsLoading } = useCompteStats();
+  const { updateCompte } = useCompteMutations();
 
-  const columns: ColumnDef<Compte>[] = [
+  // Map API data to display format
+  const data: CompteDisplay[] = React.useMemo(() => {
+    return comptes.map((compte) => ({
+      id: compte._id,
+      accountNumber: compte.accountNumber,
+      name: compte.name,
+      type: compte.type,
+      balance: compte.balance,
+      currency: compte.currency,
+      status: compte.status,
+    }));
+  }, [comptes]);
+
+  const columns: ColumnDef<CompteDisplay>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -76,12 +95,20 @@ export function ComptesTable() {
       enableHiding: false,
     },
     {
+      accessorKey: "accountNumber",
+      header: "Account #",
+    },
+    {
       accessorKey: "name",
       header: "Name",
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.getValue("type") as string;
+        return <Badge variant="outline">{type}</Badge>;
+      },
     },
     {
       accessorKey: "status",
@@ -89,27 +116,24 @@ export function ComptesTable() {
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
         let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-        if (status === "inactive") {
+        if (status === "inactive" || status === "closed") {
           variant = "secondary";
-        } else if (status === "pending") {
+        } else if (status === "frozen") {
           variant = "destructive";
         }
         return <Badge variant={variant}>{status}</Badge>;
       },
     },
     {
-      accessorKey: "plan",
-      header: "Plan",
-    },
-    {
-      accessorKey: "amount",
-      header: () => <div className="text-right">Amount</div>,
+      accessorKey: "balance",
+      header: () => <div className="text-right">Balance</div>,
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("amount"));
+        const balance = parseFloat(row.getValue("balance"));
+        const currency = row.original.currency || "USD";
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
-          currency: "USD",
-        }).format(amount);
+          currency: currency,
+        }).format(balance);
 
         return <div className="text-right font-medium">{formatted}</div>;
       },
@@ -119,20 +143,13 @@ export function ComptesTable() {
       cell: ({ row }) => {
         const compte = row.original;
 
-        const handleStatusChange = (status: "active" | "inactive" | "pending") => {
-          setData((prevData) =>
-            prevData.map((item) =>
-              item.id === compte.id ? { ...item, status } : item
-            )
-          );
-        };
-
-        const handlePlanChange = (plan: "free" | "basic" | "premium") => {
-          setData((prevData) =>
-            prevData.map((item) =>
-              item.id === compte.id ? { ...item, plan } : item
-            )
-          );
+        const handleStatusChange = async (status: "active" | "inactive" | "frozen" | "closed") => {
+          try {
+            await updateCompte(compte.id, { status });
+            refetch();
+          } catch (err) {
+            console.error('Failed to update status:', err);
+          }
         };
 
         return (
@@ -146,9 +163,9 @@ export function ComptesTable() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(compte.id.toString())}
+                onClick={() => navigator.clipboard.writeText(compte.accountNumber)}
               >
-                Copy compte ID
+                Copy account number
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuSub>
@@ -156,22 +173,14 @@ export function ComptesTable() {
                 <DropdownMenuSubContent>
                   <DropdownMenuItem onClick={() => handleStatusChange("active")}>Active</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleStatusChange("inactive")}>Inactive</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange("pending")}>Pending</DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Change Plan</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handlePlanChange("free")}>Free</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handlePlanChange("basic")}>Basic</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handlePlanChange("premium")}>Premium</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleStatusChange("frozen")}>Frozen</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleStatusChange("closed")}>Closed</DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link to={CUSTOMERSPROFILES}>View customer</Link>
+                <Link to={CUSTOMERSPROFILES}>View details</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -205,18 +214,55 @@ export function ComptesTable() {
     },
   });
 
-  const totalComptes = data.length;
+  const totalComptes = stats?.total ?? data.length;
   const activeComptes = data.filter((compte) => compte.status === "active").length;
   const inactiveComptes = data.filter((compte) => compte.status === "inactive").length;
-  const pendingComptes = data.filter((compte) => compte.status === "pending").length;
-  const totalAmount = data.reduce((acc, compte) => acc + compte.amount, 0);
+  const frozenComptes = data.filter((compte) => compte.status === "frozen").length;
+  const totalBalance = stats?.totalBalance ?? data.reduce((acc, compte) => acc + compte.balance, 0);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="w-full space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Skeleton className="h-10 w-64" />
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[300px] space-y-4">
+        <p className="text-lg text-muted-foreground">Failed to load accounts</p>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Comptes</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalComptes}</div>
@@ -227,7 +273,7 @@ export function ComptesTable() {
             <CardTitle className="text-sm font-medium">Active</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeComptes}</div>
+            <div className="text-2xl font-bold text-green-600">{activeComptes}</div>
           </CardContent>
         </Card>
         <Card>
@@ -235,24 +281,26 @@ export function ComptesTable() {
             <CardTitle className="text-sm font-medium">Inactive</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inactiveComptes}</div>
+            <div className="text-2xl font-bold text-gray-600">{inactiveComptes}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingComptes}</div>
+            <div className="text-2xl font-bold">
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalBalance)}
+            </div>
           </CardContent>
         </Card>
       </div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter by name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

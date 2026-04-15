@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Card, 
   CardContent, 
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import { 
   AlertCircle, 
   CheckCircle2, 
@@ -53,177 +54,35 @@ import {
   PieChart,
   Pie
 } from 'recharts'
-
-// Mock data for system health
-const systemMetrics = {
-  uptime: {
-    value: 99.98,
-    status: 'healthy',
-    trend: 'up',
-    target: 99.9
-  },
-  responseTime: {
-    value: 245,
-    status: 'healthy',
-    trend: 'down',
-    target: 300
-  },
-  errorRate: {
-    value: 0.12,
-    status: 'healthy',
-    trend: 'down',
-    target: 0.5
-  },
-  cpuUsage: {
-    value: 45,
-    status: 'healthy',
-    trend: 'stable',
-    target: 80
-  },
-  memoryUsage: {
-    value: 62,
-    status: 'warning',
-    trend: 'up',
-    target: 75
-  },
-  diskUsage: {
-    value: 78,
-    status: 'warning',
-    trend: 'up',
-    target: 85
-  },
-  activeConnections: {
-    value: 1247,
-    status: 'healthy',
-    trend: 'up',
-    target: 2000
-  },
-  throughput: {
-    value: 2.4,
-    status: 'healthy',
-    trend: 'up',
-    target: 3.0
-  }
-}
-
-const serviceStatus = [
-  { 
-    name: 'API Gateway', 
-    status: 'operational', 
-    latency: 45, 
-    uptime: 99.99,
-    lastIncident: '2024-02-15'
-  },
-  { 
-    name: 'Database', 
-    status: 'operational', 
-    latency: 12, 
-    uptime: 99.95,
-    lastIncident: '2024-03-10'
-  },
-  { 
-    name: 'Authentication', 
-    status: 'degraded', 
-    latency: 189, 
-    uptime: 99.87,
-    lastIncident: '2024-03-20'
-  },
-  { 
-    name: 'Payment Processing', 
-    status: 'operational', 
-    latency: 78, 
-    uptime: 99.98,
-    lastIncident: '2024-01-05'
-  },
-  { 
-    name: 'File Storage', 
-    status: 'operational', 
-    latency: 34, 
-    uptime: 99.96,
-    lastIncident: '2024-02-28'
-  },
-  { 
-    name: 'Email Service', 
-    status: 'maintenance', 
-    latency: 0, 
-    uptime: 99.92,
-    lastIncident: '2024-03-18'
-  }
-]
-
-const performanceData = [
-  { time: '00:00', responseTime: 230, cpu: 42, memory: 58, errors: 2 },
-  { time: '02:00', responseTime: 245, cpu: 38, memory: 55, errors: 1 },
-  { time: '04:00', responseTime: 210, cpu: 35, memory: 52, errors: 0 },
-  { time: '06:00', responseTime: 265, cpu: 48, memory: 61, errors: 3 },
-  { time: '08:00', responseTime: 310, cpu: 65, memory: 68, errors: 5 },
-  { time: '10:00', responseTime: 280, cpu: 58, memory: 64, errors: 2 },
-  { time: '12:00', responseTime: 295, cpu: 62, memory: 66, errors: 4 },
-  { time: '14:00', responseTime: 270, cpu: 55, memory: 63, errors: 1 },
-  { time: '16:00', responseTime: 290, cpu: 60, memory: 65, errors: 3 },
-  { time: '18:00', responseTime: 260, cpu: 52, memory: 61, errors: 2 },
-  { time: '20:00', responseTime: 240, cpu: 45, memory: 59, errors: 1 },
-  { time: '22:00', responseTime: 225, cpu: 40, memory: 57, errors: 0 }
-]
-
-const recentIncidents = [
-  {
-    id: 1,
-    service: 'Authentication',
-    severity: 'high',
-    description: 'Increased latency in user authentication',
-    startTime: '2024-03-20 14:30',
-    endTime: '2024-03-20 15:45',
-    duration: '1h 15m',
-    status: 'resolved'
-  },
-  {
-    id: 2,
-    service: 'Email Service',
-    severity: 'medium',
-    description: 'Scheduled maintenance for infrastructure upgrade',
-    startTime: '2024-03-18 02:00',
-    endTime: '2024-03-18 04:00',
-    duration: '2h 0m',
-    status: 'completed'
-  },
-  {
-    id: 3,
-    service: 'API Gateway',
-    severity: 'low',
-    description: 'Minor routing issues affecting some endpoints',
-    startTime: '2024-03-15 09:15',
-    endTime: '2024-03-15 09:45',
-    duration: '30m',
-    status: 'resolved'
-  }
-]
-
-const resourceUsage = [
-  { name: 'CPU', usage: 45, capacity: 100, trend: 'stable' },
-  { name: 'Memory', usage: 62, capacity: 100, trend: 'up' },
-  { name: 'Disk', usage: 78, capacity: 100, trend: 'up' },
-  { name: 'Network', usage: 34, capacity: 100, trend: 'stable' }
-]
+import { useSystemHealth, usePerformanceHistory, useRecentIncidents } from '@/hooks/useSystemHealth'
 
 const SystemHealthStatus = () => {
   const [timeRange, setTimeRange] = useState('24h')
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(new Date())
 
-  const refreshData = () => {
-    setIsRefreshing(true)
-    // Simulate API call
-    setTimeout(() => {
-      setLastUpdated(new Date())
-      setIsRefreshing(false)
-    }, 1000)
-  }
+  // Fetch data from API with real-time socket updates
+  const { health, loading: healthLoading, error: healthError, refetch: refetchHealth, isConnected } = useSystemHealth()
+  const { data: performanceData, loading: perfLoading, refetch: refetchPerformance } = usePerformanceHistory(24)
+  const { incidents: recentIncidents, loading: incidentsLoading, refetch: refetchIncidents } = useRecentIncidents()
 
+  // Extract data from health response
+  const systemMetrics = health?.systemMetrics
+  const serviceStatus = health?.serviceStatus || []
+  const resourceUsage = health?.resourceUsage || []
+  const systemInfo = health?.systemInfo
+
+  // Update lastUpdated when health data changes (real-time)
   useEffect(() => {
-    const interval = setInterval(refreshData, 30000) // Auto-refresh every 30 seconds
-    return () => clearInterval(interval)
-  }, [])
+    if (health?.timestamp) {
+      setLastUpdated(new Date(health.timestamp))
+    }
+  }, [health?.timestamp])
+
+  const refreshData = () => {
+    refetchHealth()
+    refetchPerformance()
+    refetchIncidents()
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -304,20 +163,38 @@ const SystemHealthStatus = () => {
     return null
   }
 
-  const MetricCard = ({ title, value, status, trend, target, icon: Icon, unit = '' }: any) => {
+  const MetricCard = ({ title, value, status, trend, target, icon: Icon, unit = '', loading = false }: any) => {
+    if (loading) {
+      return (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-8 w-20 mb-2" />
+            <div className="flex items-center justify-between mt-2">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <Skeleton className="h-2 w-full mt-2" />
+          </CardContent>
+        </Card>
+      )
+    }
     return (
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-md">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <Icon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold transition-all duration-500 ease-out">
             {value}
             {unit}
           </div>
           <div className="flex items-center justify-between mt-2">
-            <Badge variant={getStatusVariant(status)} className="text-xs">
+            <Badge variant={getStatusVariant(status)} className="text-xs transition-colors duration-300">
               {getStatusIcon(status)}
               <span className="ml-1 capitalize">{status}</span>
             </Badge>
@@ -327,11 +204,25 @@ const SystemHealthStatus = () => {
           </div>
           <Progress 
             value={(value / target) * 100} 
-            className="mt-2"
-            indicatorClassName={getProgressColor(value, target)}
+            className="mt-2 transition-all duration-500"
+            indicatorClassName={`${getProgressColor(value, target)} transition-all duration-500`}
           />
         </CardContent>
       </Card>
+    )
+  }
+
+  // Show error state
+  if (healthError && !isConnected) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium">Failed to load system health</h3>
+          <p className="text-muted-foreground mb-4">{healthError}</p>
+          <Button onClick={refreshData}>Try Again</Button>
+        </div>
+      </div>
     )
   }
 
@@ -346,8 +237,19 @@ const SystemHealthStatus = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          {/* Real-time connection indicator */}
+          <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+              isConnected 
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+            }`}>
+              <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+              <span>{isConnected ? 'Live' : 'Connecting...'}</span>
+            </div>
+          </div>
           <div className="text-sm text-muted-foreground">
-            Last updated: {lastUpdated.toLocaleTimeString()}
+            {lastUpdated.toLocaleTimeString()}
           </div>
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[130px]">
@@ -360,8 +262,8 @@ const SystemHealthStatus = () => {
               <SelectItem value="7d">Last 7 days</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={refreshData} disabled={isRefreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <Button variant="outline" onClick={refreshData}>
+            <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Button variant="outline">
@@ -375,40 +277,105 @@ const SystemHealthStatus = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Uptime"
-          value={systemMetrics.uptime.value}
-          status={systemMetrics.uptime.status}
-          trend={systemMetrics.uptime.trend}
-          target={systemMetrics.uptime.target}
+          value={systemMetrics?.uptime?.value ?? 0}
+          status={systemMetrics?.uptime?.status ?? 'healthy'}
+          trend={systemMetrics?.uptime?.trend ?? 'stable'}
+          target={systemMetrics?.uptime?.target ?? 99.9}
           icon={Server}
           unit="%"
+          loading={healthLoading}
         />
         <MetricCard
           title="Response Time"
-          value={systemMetrics.responseTime.value}
-          status={systemMetrics.responseTime.status}
-          trend={systemMetrics.responseTime.trend}
-          target={systemMetrics.responseTime.target}
+          value={systemMetrics?.responseTime?.value ?? 0}
+          status={systemMetrics?.responseTime?.status ?? 'healthy'}
+          trend={systemMetrics?.responseTime?.trend ?? 'stable'}
+          target={systemMetrics?.responseTime?.target ?? 300}
           icon={Zap}
           unit="ms"
+          loading={healthLoading}
         />
         <MetricCard
-          title="Error Rate"
-          value={systemMetrics.errorRate.value}
-          status={systemMetrics.errorRate.status}
-          trend={systemMetrics.errorRate.trend}
-          target={systemMetrics.errorRate.target}
-          icon={AlertCircle}
+          title="CPU Usage"
+          value={systemMetrics?.cpuUsage?.value ?? 0}
+          status={systemMetrics?.cpuUsage?.status ?? 'healthy'}
+          trend={systemMetrics?.cpuUsage?.trend ?? 'stable'}
+          target={systemMetrics?.cpuUsage?.target ?? 80}
+          icon={Cpu}
           unit="%"
+          loading={healthLoading}
         />
         <MetricCard
-          title="Active Connections"
-          value={systemMetrics.activeConnections.value}
-          status={systemMetrics.activeConnections.status}
-          trend={systemMetrics.activeConnections.trend}
-          target={systemMetrics.activeConnections.target}
-          icon={Network}
+          title="Memory Usage"
+          value={systemMetrics?.memoryUsage?.value ?? 0}
+          status={systemMetrics?.memoryUsage?.status ?? 'healthy'}
+          trend={systemMetrics?.memoryUsage?.trend ?? 'stable'}
+          target={systemMetrics?.memoryUsage?.target ?? 75}
+          icon={MemoryStick}
+          unit="%"
+          loading={healthLoading}
         />
       </div>
+
+      {/* System Information Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Server className="h-5 w-5" />
+            System Information
+          </CardTitle>
+          <CardDescription>Real-time server and environment details</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {healthLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-6 w-32" />
+                </div>
+              ))}
+            </div>
+          ) : systemInfo ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Hostname</p>
+                <p className="font-medium">{systemInfo.hostname}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Platform</p>
+                <p className="font-medium capitalize">{systemInfo.platform}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Architecture</p>
+                <p className="font-medium">{systemInfo.arch}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Node Version</p>
+                <p className="font-medium">{systemInfo.nodeVersion}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">CPU Model</p>
+                <p className="font-medium text-sm">{systemInfo.cpuModel}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">CPU Cores</p>
+                <p className="font-medium">{systemInfo.cpuCores} cores</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Memory</p>
+                <p className="font-medium">{systemInfo.totalMemoryGB} GB</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Free Memory</p>
+                <p className="font-medium">{systemInfo.freeMemoryGB} GB</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No system information available</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Performance Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -502,7 +469,24 @@ const SystemHealthStatus = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {serviceStatus.map((service, index) => (
+              {healthLoading ? (
+                [...Array(4)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-10 w-10 rounded-lg" />
+                      <div>
+                        <Skeleton className="h-4 w-24 mb-1" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Skeleton className="h-5 w-20 mb-1" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                ))
+              ) : serviceStatus.length > 0 ? (
+                serviceStatus.map((service) => (
                 <div key={service.name} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg ${
@@ -528,7 +512,10 @@ const SystemHealthStatus = () => {
                     </p>
                   </div>
                 </div>
-              ))}
+              ))
+              ) : (
+                <p className="text-muted-foreground text-center py-4">No services available</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -543,12 +530,30 @@ const SystemHealthStatus = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentIncidents.map((incident) => (
+              {incidentsLoading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Skeleton className="h-5 w-16" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <div className="flex justify-between">
+                      <Skeleton className="h-3 w-32" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                ))
+              ) : recentIncidents.length > 0 ? (
+                recentIncidents.map((incident) => (
                 <div key={incident.id} className="p-3 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <Badge variant={
-                        incident.severity === 'high' ? 'destructive' :
+                        incident.severity === 'high' || incident.severity === 'critical' ? 'destructive' :
                         incident.severity === 'medium' ? 'secondary' : 'outline'
                       }>
                         {incident.severity}
@@ -567,7 +572,15 @@ const SystemHealthStatus = () => {
                     <span>{incident.duration}</span>
                   </div>
                 </div>
-              ))}
+              ))
+              ) : (
+                <div className="flex items-center justify-center p-6 border border-green-200 rounded-lg bg-green-50">
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    <p className="font-medium text-green-700">No incidents reported. All systems operational.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -583,7 +596,18 @@ const SystemHealthStatus = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {resourceUsage.map((resource, index) => (
+            {healthLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="text-center">
+                  <div className="relative inline-block">
+                    <Skeleton className="w-20 h-20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-16 mx-auto mt-2" />
+                  <Skeleton className="h-3 w-20 mx-auto mt-1" />
+                </div>
+              ))
+            ) : resourceUsage.length > 0 ? (
+              resourceUsage.map((resource) => (
               <div key={resource.name} className="text-center">
                 <div className="relative inline-block">
                   <div className="w-20 h-20 rounded-full border-4 border-gray-200 flex items-center justify-center">
@@ -604,7 +628,10 @@ const SystemHealthStatus = () => {
                    resource.trend === 'down' ? 'Decreasing' : 'Stable'}
                 </p>
               </div>
-            ))}
+            ))
+            ) : (
+              <p className="text-muted-foreground col-span-4 text-center py-4">No resource data available</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -619,42 +646,110 @@ const SystemHealthStatus = () => {
                 Active warnings and critical notifications
               </CardDescription>
             </div>
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              2 Active Alerts
-            </Badge>
+            {(() => {
+              const alerts = [];
+              if (systemMetrics?.memoryUsage?.status === 'warning' || systemMetrics?.memoryUsage?.status === 'critical') {
+                alerts.push({ type: 'memory', value: systemMetrics.memoryUsage.value });
+              }
+              if (systemMetrics?.diskUsage?.status === 'warning' || systemMetrics?.diskUsage?.status === 'critical') {
+                alerts.push({ type: 'disk', value: systemMetrics.diskUsage.value });
+              }
+              if (systemMetrics?.cpuUsage?.status === 'warning' || systemMetrics?.cpuUsage?.status === 'critical') {
+                alerts.push({ type: 'cpu', value: systemMetrics.cpuUsage.value });
+              }
+              return (
+                <Badge variant="outline" className={alerts.length > 0 ? "bg-yellow-50 text-yellow-700" : "bg-green-50 text-green-700"}>
+                  {alerts.length > 0 ? (
+                    <>
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      {alerts.length} Active Alert{alerts.length > 1 ? 's' : ''}
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      All Systems Normal
+                    </>
+                  )}
+                </Badge>
+              );
+            })()}
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border border-yellow-200 rounded-lg bg-yellow-50">
-              <div className="flex items-center space-x-3">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="font-medium text-sm">Memory Usage High</p>
-                  <p className="text-sm text-yellow-700">
-                    Memory usage at 62% and increasing
-                  </p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </div>
-            <div className="flex items-center justify-between p-3 border border-yellow-200 rounded-lg bg-yellow-50">
-              <div className="flex items-center space-x-3">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="font-medium text-sm">Disk Space Warning</p>
-                  <p className="text-sm text-yellow-700">
-                    Disk usage at 78%, consider cleanup
-                  </p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </div>
+            {healthLoading ? (
+              <>
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </>
+            ) : (
+              <>
+                {systemMetrics?.memoryUsage && (systemMetrics.memoryUsage.status === 'warning' || systemMetrics.memoryUsage.status === 'critical') && (
+                  <div className={`flex items-center justify-between p-3 border rounded-lg ${
+                    systemMetrics.memoryUsage.status === 'critical' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <AlertTriangle className={`h-5 w-5 ${systemMetrics.memoryUsage.status === 'critical' ? 'text-red-600' : 'text-yellow-600'}`} />
+                      <div>
+                        <p className="font-medium text-sm">Memory Usage {systemMetrics.memoryUsage.status === 'critical' ? 'Critical' : 'High'}</p>
+                        <p className={`text-sm ${systemMetrics.memoryUsage.status === 'critical' ? 'text-red-700' : 'text-yellow-700'}`}>
+                          Memory usage at {systemMetrics.memoryUsage.value}% ({systemMetrics.memoryUsage.used?.toFixed(2) || 'N/A'} GB used of {systemMetrics.memoryUsage.total?.toFixed(2) || 'N/A'} GB)
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </div>
+                )}
+                {systemMetrics?.diskUsage && (systemMetrics.diskUsage.status === 'warning' || systemMetrics.diskUsage.status === 'critical') && (
+                  <div className={`flex items-center justify-between p-3 border rounded-lg ${
+                    systemMetrics.diskUsage.status === 'critical' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <AlertTriangle className={`h-5 w-5 ${systemMetrics.diskUsage.status === 'critical' ? 'text-red-600' : 'text-yellow-600'}`} />
+                      <div>
+                        <p className="font-medium text-sm">Disk Space {systemMetrics.diskUsage.status === 'critical' ? 'Critical' : 'Warning'}</p>
+                        <p className={`text-sm ${systemMetrics.diskUsage.status === 'critical' ? 'text-red-700' : 'text-yellow-700'}`}>
+                          Disk usage at {systemMetrics.diskUsage.value}%, consider cleanup
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </div>
+                )}
+                {systemMetrics?.cpuUsage && (systemMetrics.cpuUsage.status === 'warning' || systemMetrics.cpuUsage.status === 'critical') && (
+                  <div className={`flex items-center justify-between p-3 border rounded-lg ${
+                    systemMetrics.cpuUsage.status === 'critical' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <AlertTriangle className={`h-5 w-5 ${systemMetrics.cpuUsage.status === 'critical' ? 'text-red-600' : 'text-yellow-600'}`} />
+                      <div>
+                        <p className="font-medium text-sm">CPU Usage {systemMetrics.cpuUsage.status === 'critical' ? 'Critical' : 'High'}</p>
+                        <p className={`text-sm ${systemMetrics.cpuUsage.status === 'critical' ? 'text-red-700' : 'text-yellow-700'}`}>
+                          CPU usage at {systemMetrics.cpuUsage.value}%
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </div>
+                )}
+                {(!systemMetrics?.memoryUsage || systemMetrics.memoryUsage.status === 'healthy') && 
+                 (!systemMetrics?.diskUsage || systemMetrics.diskUsage.status === 'healthy') && 
+                 (!systemMetrics?.cpuUsage || systemMetrics.cpuUsage.status === 'healthy') && (
+                  <div className="flex items-center justify-center p-6 border border-green-200 rounded-lg bg-green-50">
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <p className="font-medium text-green-700">All systems operating normally. No active alerts.</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

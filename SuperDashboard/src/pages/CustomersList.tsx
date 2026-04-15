@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { 
   Card, 
   CardContent, 
@@ -40,6 +40,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { 
   Search, 
   Filter, 
@@ -58,164 +59,61 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  ArrowUpDown
+  ArrowUpDown,
+  AlertCircle,
+  Loader2
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-// Mock customer data
-const customersData = [
-  {
-    id: '1',
-    name: 'John Smith',
-    email: 'john.smith@example.com',
-    company: 'TechCorp Inc.',
-    plan: 'Enterprise',
-    status: 'active',
-    amount: 299,
-    paymentMethod: 'credit_card',
-    signupDate: '2024-01-15',
-    lastLogin: '2024-03-20',
-    location: 'New York, USA',
-    phone: '+1 (555) 123-4567'
-  },
-  {
-    id: '2',
-    name: 'Sarah Johnson',
-    email: 'sarah.j@example.com',
-    company: 'Design Studio',
-    plan: 'Professional',
-    status: 'active',
-    amount: 99,
-    paymentMethod: 'paypal',
-    signupDate: '2024-02-10',
-    lastLogin: '2024-03-19',
-    location: 'San Francisco, USA',
-    phone: '+1 (555) 987-6543'
-  },
-  {
-    id: '3',
-    name: 'Mike Chen',
-    email: 'mike.chen@example.com',
-    company: 'StartupXYZ',
-    plan: 'Starter',
-    status: 'active',
-    amount: 29,
-    paymentMethod: 'credit_card',
-    signupDate: '2024-02-28',
-    lastLogin: '2024-03-18',
-    location: 'Austin, USA',
-    phone: '+1 (555) 456-7890'
-  },
-  {
-    id: '4',
-    name: 'Emma Davis',
-    email: 'emma.davis@example.com',
-    company: 'Consulting Pro',
-    plan: 'Professional',
-    status: 'inactive',
-    amount: 99,
-    paymentMethod: 'bank_transfer',
-    signupDate: '2024-01-05',
-    lastLogin: '2024-02-15',
-    location: 'Chicago, USA',
-    phone: '+1 (555) 234-5678'
-  },
-  {
-    id: '5',
-    name: 'Alex Brown',
-    email: 'alex.brown@example.com',
-    company: 'Marketing Co',
-    plan: 'Enterprise',
-    status: 'active',
-    amount: 299,
-    paymentMethod: 'credit_card',
-    signupDate: '2024-03-01',
-    lastLogin: '2024-03-20',
-    location: 'Miami, USA',
-    phone: '+1 (555) 345-6789'
-  },
-  {
-    id: '6',
-    name: 'Lisa Wang',
-    email: 'lisa.wang@example.com',
-    company: 'Finance Solutions',
-    plan: 'Professional',
-    status: 'pending',
-    amount: 99,
-    paymentMethod: 'paypal',
-    signupDate: '2024-03-15',
-    lastLogin: '2024-03-16',
-    location: 'Seattle, USA',
-    phone: '+1 (555) 567-8901'
-  },
-  {
-    id: '7',
-    name: 'David Wilson',
-    email: 'david.wilson@example.com',
-    company: 'Tech Innovations',
-    plan: 'Starter',
-    status: 'active',
-    amount: 29,
-    paymentMethod: 'credit_card',
-    signupDate: '2024-02-20',
-    lastLogin: '2024-03-19',
-    location: 'Boston, USA',
-    phone: '+1 (555) 678-9012'
-  },
-  {
-    id: '8',
-    name: 'Maria Garcia',
-    email: 'maria.garcia@example.com',
-    company: 'Creative Agency',
-    plan: 'Professional',
-    status: 'suspended',
-    amount: 99,
-    paymentMethod: 'credit_card',
-    signupDate: '2024-01-25',
-    lastLogin: '2024-02-28',
-    location: 'Los Angeles, USA',
-    phone: '+1 (555) 789-0123'
-  }
-]
+import { useClients, useClientStats, useClientMutations } from '@/hooks'
+import type { Client } from '@/api/types'
 
 const CustomersList = () => {
-  const [customers, setCustomers] = useState(customersData)
+  // API hooks
+  const { clients, loading, error, refetch } = useClients()
+  const { stats: clientStats, loading: statsLoading } = useClientStats()
+  const { deleteClient, loading: deleteLoading } = useClientMutations()
+  
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [planFilter, setPlanFilter] = useState('all')
+  const [segmentFilter, setSegmentFilter] = useState('all')
   const [sortField, setSortField] = useState('name')
-  const [sortDirection, setSortDirection] = useState('asc')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<Client | null>(null)
 
   // Filter and sort customers
-  const filteredCustomers = customers
-    .filter(customer => {
-      const matchesSearch = 
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.company.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCustomers = useMemo(() => {
+    return clients
+      .filter(customer => {
+        const matchesSearch = 
+          customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (customer.company?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        
+        const matchesStatus = statusFilter === 'all' || customer.status === statusFilter
+        const matchesSegment = segmentFilter === 'all' || customer.segment === segmentFilter
       
-      const matchesStatus = statusFilter === 'all' || customer.status === statusFilter
-      const matchesPlan = planFilter === 'all' || customer.plan === planFilter
-      
-      return matchesSearch && matchesStatus && matchesPlan
-    })
-    .sort((a, b) => {
-      let aValue = a[sortField as keyof typeof a]
-      let bValue = b[sortField as keyof typeof b]
-      
-      if (sortField === 'signupDate' || sortField === 'lastLogin') {
-        aValue = new Date(aValue as string).getTime()
-        bValue = new Date(bValue as string).getTime()
-      }
-      
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
-    })
+        return matchesSearch && matchesStatus && matchesSegment
+      })
+      .sort((a, b) => {
+        const aValue = a[sortField as keyof typeof a]
+        const bValue = b[sortField as keyof typeof b]
+        
+        if (sortField === 'createdAt' || sortField === 'updatedAt') {
+          const aTime = new Date(aValue as string).getTime()
+          const bTime = new Date(bValue as string).getTime()
+          return sortDirection === 'asc' ? aTime - bTime : bTime - aTime
+        }
+        
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortDirection === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue)
+        }
+        
+        return 0
+      })
+  }, [clients, searchTerm, statusFilter, segmentFilter, sortField, sortDirection])
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -226,16 +124,21 @@ const CustomersList = () => {
     }
   }
 
-  const handleDeleteCustomer = (customer: any) => {
+  const handleDeleteCustomer = (customer: Client) => {
     setSelectedCustomer(customer)
     setIsDeleteDialogOpen(true)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedCustomer) {
-      setCustomers(customers.filter(c => c.id !== selectedCustomer.id))
-      setIsDeleteDialogOpen(false)
-      setSelectedCustomer(null)
+      try {
+        await deleteClient(selectedCustomer._id)
+        refetch()
+        setIsDeleteDialogOpen(false)
+        setSelectedCustomer(null)
+      } catch (err) {
+        console.error('Failed to delete client:', err)
+      }
     }
   }
 
@@ -269,24 +172,19 @@ const CustomersList = () => {
     }
   }
 
-  const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'Enterprise':
+  const getSegmentColor = (segment: string) => {
+    switch (segment) {
+      case 'enterprise':
         return 'bg-purple-100 text-purple-800'
-      case 'Professional':
+      case 'business':
         return 'bg-blue-100 text-blue-800'
-      case 'Starter':
+      case 'startup':
         return 'bg-green-100 text-green-800'
+      case 'individual':
+        return 'bg-orange-100 text-orange-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount)
   }
 
   const formatDate = (dateString: string) => {
@@ -297,19 +195,56 @@ const CustomersList = () => {
     })
   }
 
-  const getDaysSinceLastLogin = (lastLogin: string) => {
-    const lastLoginDate = new Date(lastLogin)
-    const today = new Date()
-    const diffTime = Math.abs(today.getTime() - lastLoginDate.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
+  const stats = {
+    total: clientStats?.total ?? clients.length,
+    active: clientStats?.active ?? clients.filter(c => c.status === 'active').length,
+    pending: clients.filter(c => c.status === 'pending').length,
+    inactive: clients.filter(c => c.status === 'inactive').length
   }
 
-  const stats = {
-    total: customers.length,
-    active: customers.filter(c => c.status === 'active').length,
-    pending: customers.filter(c => c.status === 'pending').length,
-    inactive: customers.filter(c => c.status === 'inactive').length
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-72 mt-2" />
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full mb-2" />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-muted-foreground">Failed to load customers</p>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    )
   }
 
   return (
@@ -419,16 +354,17 @@ const CustomersList = () => {
                   <SelectItem value="suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={planFilter} onValueChange={setPlanFilter}>
+              <Select value={segmentFilter} onValueChange={setSegmentFilter}>
                 <SelectTrigger className="w-[150px]">
                   <CreditCard className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Plan" />
+                  <SelectValue placeholder="Segment" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Plans</SelectItem>
-                  <SelectItem value="Enterprise">Enterprise</SelectItem>
-                  <SelectItem value="Professional">Professional</SelectItem>
-                  <SelectItem value="Starter">Starter</SelectItem>
+                  <SelectItem value="all">All Segments</SelectItem>
+                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="startup">Startup</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -460,10 +396,10 @@ const CustomersList = () => {
                 <TableHead>Company</TableHead>
                 <TableHead 
                   className="cursor-pointer"
-                  onClick={() => handleSort('plan')}
+                  onClick={() => handleSort('segment')}
                 >
                   <div className="flex items-center">
-                    Plan
+                    Segment
                     <ArrowUpDown className="h-4 w-4 ml-1" />
                   </div>
                 </TableHead>
@@ -476,30 +412,13 @@ const CustomersList = () => {
                     <ArrowUpDown className="h-4 w-4 ml-1" />
                   </div>
                 </TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead 
                   className="cursor-pointer"
-                  onClick={() => handleSort('amount')}
+                  onClick={() => handleSort('createdAt')}
                 >
                   <div className="flex items-center">
-                    Amount
-                    <ArrowUpDown className="h-4 w-4 ml-1" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer"
-                  onClick={() => handleSort('signupDate')}
-                >
-                  <div className="flex items-center">
-                    Signup Date
-                    <ArrowUpDown className="h-4 w-4 ml-1" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer"
-                  onClick={() => handleSort('lastLogin')}
-                >
-                  <div className="flex items-center">
-                    Last Login
+                    Created
                     <ArrowUpDown className="h-4 w-4 ml-1" />
                   </div>
                 </TableHead>
@@ -508,7 +427,7 @@ const CustomersList = () => {
             </TableHeader>
             <TableBody>
               {filteredCustomers.map((customer) => (
-                <TableRow key={customer.id}>
+                <TableRow key={customer._id}>
                   <TableCell>
                     <div>
                       <div className="font-medium">{customer.name}</div>
@@ -517,10 +436,10 @@ const CustomersList = () => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{customer.company}</TableCell>
+                  <TableCell>{customer.company || '-'}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={getPlanColor(customer.plan)}>
-                      {customer.plan}
+                    <Badge variant="outline" className={getSegmentColor(customer.segment)}>
+                      {customer.segment}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -531,23 +450,11 @@ const CustomersList = () => {
                       </Badge>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {formatCurrency(customer.amount)}
-                  </TableCell>
+                  <TableCell>{customer.phone || '-'}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatDate(customer.signupDate)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <span>{formatDate(customer.lastLogin)}</span>
-                      {getDaysSinceLastLogin(customer.lastLogin) > 30 && (
-                        <Badge variant="outline" className="text-xs">
-                          {getDaysSinceLastLogin(customer.lastLogin)}d ago
-                        </Badge>
-                      )}
+                      <span>{formatDate(customer.createdAt)}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -560,7 +467,7 @@ const CustomersList = () => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link to={`/dashboard/customers/${customer.id}`}>
+                          <Link to={`/dashboard/customers/${customer._id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
@@ -608,10 +515,11 @@ const CustomersList = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={deleteLoading}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteLoading}>
+              {deleteLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Delete Customer
             </Button>
           </DialogFooter>

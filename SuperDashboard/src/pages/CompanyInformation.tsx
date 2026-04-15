@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Card, 
   CardContent, 
@@ -35,6 +35,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { 
   Building,
   MapPin,
@@ -58,11 +59,14 @@ import {
   Target,
   BarChart3,
   CreditCard,
-  Settings
+  Settings,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useCompany, useCompanyMutations } from '@/hooks'
 
 // Form validation schema
 const companyInfoSchema = z.object({
@@ -106,73 +110,114 @@ const companyInfoSchema = z.object({
 
 type CompanyInfoFormValues = z.infer<typeof companyInfoSchema>
 
+// Default company data for when no company exists
+const defaultCompanyData: CompanyInfoFormValues = {
+  companyName: '',
+  legalName: '',
+  companyEmail: '',
+  phone: '',
+  website: '',
+  streetAddress: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  country: 'United States',
+  industry: '',
+  companySize: '1-10',
+  foundedYear: new Date().getFullYear(),
+  taxId: '',
+  businessNumber: '',
+  description: '',
+  missionStatement: '',
+  values: [],
+  twitterUrl: '',
+  linkedinUrl: '',
+  facebookUrl: '',
+  instagramUrl: '',
+  termsUrl: '',
+  privacyUrl: '',
+  supportEmail: ''
+}
+
 const CompanyInformation = () => {
+  // API hooks
+  const { company, loading, error, refetch } = useCompany()
+  const { upsertCompany, loading: isSaving } = useCompanyMutations()
+  
   const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [logo, setLogo] = useState('/api/placeholder/120/120')
 
-  // Mock company data
-  const companyData = {
-    // Basic Information
-    companyName: 'TechCorp Inc.',
-    legalName: 'TechCorp Incorporated',
-    companyEmail: 'admin@techcorp.example.com',
-    phone: '+1 (555) 123-4567',
-    website: 'https://techcorp.example.com',
-    
-    // Address
-    streetAddress: '123 Innovation Drive',
-    city: 'San Francisco',
-    state: 'CA',
-    zipCode: '94105',
-    country: 'United States',
-    
-    // Business Details
+  // Map API company data to form data
+  const companyData: CompanyInfoFormValues = company ? {
+    companyName: company.name || '',
+    legalName: company.name || '',
+    companyEmail: company.email || '',
+    phone: company.phone || '',
+    website: company.website || '',
+    streetAddress: company.address?.street || '',
+    city: company.address?.city || '',
+    state: company.address?.state || '',
+    zipCode: company.address?.zipCode || '',
+    country: company.address?.country || 'United States',
     industry: 'Technology & Software',
     companySize: '51-200',
-    foundedYear: 2018,
-    taxId: '12-3456789',
-    businessNumber: 'BC1234567',
-    
-    // Branding
-    description: 'Leading provider of innovative SaaS solutions for modern businesses. We empower organizations to streamline operations and drive growth through cutting-edge technology.',
-    missionStatement: 'To democratize access to enterprise-grade software solutions for businesses of all sizes, enabling them to compete and thrive in the digital age.',
-    values: ['Innovation', 'Customer Success', 'Transparency', 'Excellence', 'Collaboration'],
-    
-    // Social Media
-    twitterUrl: 'https://twitter.com/techcorp',
-    linkedinUrl: 'https://linkedin.com/company/techcorp',
-    facebookUrl: 'https://facebook.com/techcorp',
-    instagramUrl: 'https://instagram.com/techcorp',
-    
-    // Legal
-    termsUrl: 'https://techcorp.example.com/terms',
-    privacyUrl: 'https://techcorp.example.com/privacy',
-    supportEmail: 'support@techcorp.example.com',
-    
-    // Additional metadata
-    status: 'active',
-    plan: 'Enterprise',
-    customerCount: 1250,
-    employeeCount: 156,
-    monthlyRevenue: 125400,
-    verificationStatus: 'verified',
-    lastUpdated: '2024-03-20'
-  }
+    foundedYear: 2020,
+    taxId: company.taxId || '',
+    businessNumber: company.registrationNumber || '',
+    description: 'Your company description goes here.',
+    missionStatement: '',
+    values: [],
+    twitterUrl: '',
+    linkedinUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    termsUrl: '',
+    privacyUrl: '',
+    supportEmail: ''
+  } : defaultCompanyData
 
   const form = useForm<CompanyInfoFormValues>({
     resolver: zodResolver(companyInfoSchema),
     defaultValues: companyData
   })
 
+  // Reset form when company data loads
+  useEffect(() => {
+    if (company) {
+      form.reset(companyData)
+      if (company.logo) {
+        setLogo(company.logo)
+      }
+    }
+  }, [company])
+
   const handleSave = async (data: CompanyInfoFormValues) => {
-    setIsSaving(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Saving company information:', data)
-    setIsSaving(false)
-    setIsEditing(false)
+    try {
+      await upsertCompany({
+        name: data.companyName,
+        email: data.companyEmail,
+        phone: data.phone,
+        website: data.website,
+        address: {
+          street: data.streetAddress,
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
+          country: data.country
+        },
+        taxId: data.taxId,
+        registrationNumber: data.businessNumber,
+        logo: logo,
+        currency: 'USD',
+        timezone: 'America/New_York',
+        fiscalYearStart: 1
+      })
+      refetch()
+      setIsEditing(false)
+    } catch (err) {
+      console.error('Failed to save company:', err)
+    }
   }
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,6 +271,53 @@ const CompanyInformation = () => {
     'Other'
   ]
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-muted-foreground">Failed to load company information</p>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -239,7 +331,7 @@ const CompanyInformation = () => {
         <div className="flex items-center space-x-2">
           {!isEditing ? (
             <>
-              <Button variant="outline" onClick={() => window.open(companyData.website, '_blank')}>
+              <Button variant="outline" onClick={() => window.open(companyData.website, '_blank')} disabled={!companyData.website}>
                 <Eye className="h-4 w-4 mr-2" />
                 View Public Profile
               </Button>
@@ -250,13 +342,14 @@ const CompanyInformation = () => {
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving}>
                 Cancel
               </Button>
               <Button 
                 onClick={form.handleSubmit(handleSave)}
                 disabled={isSaving}
               >
+                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 <Save className="h-4 w-4 mr-2" />
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>

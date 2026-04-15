@@ -20,3 +20,5 @@ export const COMPANYINFORMATION = "/dashboard/company-informations";
 export const EMAILTEMPLATES = "/dashboard/email-templates";
 export const NOTIFICATIONSETTINGS = "/dashboard/notifications-settings";
 export const FACTUREPAGE = "/dashboard/facture-page";
+export const INVOICEMANAGEMENT = "/dashboard/invoice-management";
+export const CLIENTDETAILS = "/dashboard/customers/:id";
